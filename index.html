@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#832058">
+<title>מאזני המשוואות | מבוא למשוואות | פריזמה</title>
+<!--
+  משחק "מאזני המשוואות" – מבוא למשוואות, כיתה ז', שער עצמאות.
+  נכסים: אייקונים ולוגו – עותקים מקוריים מתיקיית prisma ב־Google Drive (שמות מקוריים);
+  צלילים – אותם קבצים שבמשחקי פריזמה הקודמים. כל הנכסים בתיקיית assets, ללא תלות ב־Drive.
+-->
+<style>
+@font-face{font-family:"Simpler Pro";src:url("assets/fonts/SimplerPro-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Simpler Pro";src:url("assets/fonts/SimplerPro-Semibold.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Simpler Pro";src:url("assets/fonts/SimplerPro-Bold.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Simpler Pro";src:url("assets/fonts/SimplerPro-Black.woff2") format("woff2");font-weight:900;font-display:swap}
+
+:root{
+  --blue:#17365e; --green:#6db580; --mustard:#e7b976; --bordo:#832058; --line:#6f7f8f; --grid:#ece8de;
+  --bg:#f7f5ef; --card:#fff; --border:#e6e1d6; --soft:#faf8f3; --radius:22px; --ok-text:#2f6b40;
+  --ui:"Simpler Pro","Segoe UI",Arial,sans-serif; --math:"Times New Roman",Georgia,serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--blue);font-family:var(--ui);font-size:18px;line-height:1.5}
+button{font-family:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--bordo);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ===== פס עליון: לוגו פיזית משמאל, פעולות פיזית מימין ===== */
+.topbar{direction:ltr;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:10px clamp(10px,3vw,26px);background:var(--card);border-bottom:1px solid var(--border)}
+.topbar .logo{height:42px;width:auto;display:block}
+.topbar h1{direction:rtl;text-align:center;margin:0;color:var(--bordo);font-weight:700;font-size:clamp(19px,2.4vw,28px)}
+.topbar .icons{direction:rtl;display:flex;align-items:center;gap:6px}
+.icon-btn{width:48px;height:48px;padding:4px;border:0;background:transparent;border-radius:50%;cursor:pointer;display:grid;place-items:center}
+.icon-btn:hover{background:#f3f1ea}
+.icon-btn img{width:40px;height:40px;display:block}
+
+/* ===== מסכים וכרטיסים ===== */
+.screen{max-width:960px;margin:22px auto;padding:0 clamp(10px,3vw,24px)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 2px 10px rgba(23,54,94,.05);padding:clamp(16px,3.4vw,34px)}
+h2{color:var(--bordo);font-size:clamp(26px,3.4vw,31px);margin:0 0 6px;text-align:center}
+.lead{text-align:center;margin:0 auto 18px;font-size:19px;max-width:640px}
+.brand-btn{min-width:224px;height:64px;padding:8px 26px;border:0;border-radius:34px;cursor:pointer;
+  background:transparent url("assets/icons/button_blank_pill.svg") center/100% 100% no-repeat;color:#fff;
+  font-size:20px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap}
+.brand-btn img{width:34px;height:34px}
+.brand-btn:hover{filter:brightness(1.12)}
+.brand-btn:disabled{opacity:.45;cursor:default;filter:none}
+.text-btn{border:0;background:transparent;color:var(--blue);font-size:18px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:6px 12px;border-radius:14px}
+.text-btn:hover{background:#f3f1ea}
+.text-btn img{width:30px;height:30px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin-top:20px}
+
+/* ===== תמונת פתיחה ===== */
+.hero{display:block;width:min(420px,90%);margin:0 auto 6px}
+
+/* ===== מפת השלבים (בלי שמות שלבים) ===== */
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:560px;margin:8px auto 0;direction:rtl}
+.lvl{border:2px solid var(--border);background:#fff;border-radius:20px;min-height:112px;cursor:pointer;color:var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px}
+.lvl:hover:not(:disabled){border-color:var(--blue)}
+.lvl .num{font-family:var(--math);font-size:38px;font-weight:700;line-height:1}
+.lvl .st{display:flex;align-items:center;gap:6px;font-size:16px}
+.lvl .st img{width:24px;height:24px}
+.lvl.done{border-color:var(--green);background:rgba(109,181,128,.10)}
+.lvl.next{border-color:var(--bordo);box-shadow:0 0 0 4px rgba(131,32,88,.12)}
+.lvl:disabled{opacity:.42;cursor:default}
+
+/* ===== מסך משחק ===== */
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:10px}
+.stat{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:5px 12px 5px 10px;font-size:17px}
+.stat img{width:30px;height:30px}
+.stat b{font-size:20px;font-variant-numeric:tabular-nums}
+.progress{display:flex;justify-content:center;gap:6px;margin:0 0 12px}
+.progress span{width:24px;height:8px;border-radius:4px;background:#e9e4d8}
+.progress span.done{background:var(--green)} .progress span.miss{background:var(--mustard)} .progress span.now{background:var(--bordo)}
+.task{text-align:center;margin:0 0 6px;font-size:21px;font-weight:700;color:var(--bordo)}
+.req{display:table;margin:0 auto 4px;background:rgba(231,185,118,.22);border:1px solid rgba(231,185,118,.7);border-radius:12px;padding:3px 14px;font-size:17px;font-weight:600}
+.collected{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:6px 0 0}
+.collected .chip{background:rgba(109,181,128,.12);border:1px solid var(--green);border-radius:12px;padding:2px 12px;font-size:22px}
+.collected .slot{border:1.5px dashed var(--border);border-radius:12px;padding:2px 16px;color:#9aa5b1;font-size:18px}
+
+/* מאזניים */
+.scale-wrap{direction:ltr;position:relative;margin:4px auto 0;max-width:760px}
+#scale{display:block;width:100%;height:auto;max-height:46vh;touch-action:none;user-select:none;-webkit-user-select:none}
+#scale .hit{fill:transparent}
+#scale .pan.sel .tray{stroke:var(--bordo);stroke-width:3}
+#scale .pan.drop .tray{fill:rgba(131,32,88,.10)}
+#scale .item{cursor:default}
+#scale .item.rm{cursor:pointer}
+#scale .item.rm:hover rect.body,#scale .item.rm:focus rect.body{stroke:#fff;stroke-width:3;stroke-dasharray:4 3}
+#scale .item:focus{outline:none}
+#scale .item:focus-visible rect.body{stroke:var(--mustard);stroke-width:4}
+
+.eqline{text-align:center;margin:2px 0 0}
+.eq{font-size:clamp(30px,5.2vw,46px);color:var(--blue)}
+.subline{text-align:center;min-height:1.6em;font-size:20px;color:var(--line)}
+.subline .m{font-size:26px}
+.note{text-align:center;font-size:18px;margin:2px 0 0}
+.note .m{font-size:24px}
+#introExample{font-size:20px;line-height:2}
+#introExample .m{font-size:clamp(30px,5vw,42px)}
+
+/* כתיב מתמטי: כל ביטוי בבידוד LTR אחד */
+.m{direction:ltr;unicode-bidi:isolate;font-family:var(--math);white-space:nowrap;display:inline-flex;align-items:center;gap:.22em}
+.m i{font-style:italic}
+.cf{display:inline-flex;align-items:center;gap:.04em}
+.bx{display:inline-block;width:.78em;height:.78em;border-radius:.13em;background:var(--bordo);position:relative;vertical-align:-.06em;flex:none}
+.bx::after{content:"";position:absolute;left:0;right:0;top:.2em;height:.07em;background:rgba(255,255,255,.65)}
+.ph{color:#b9b2a3}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;font-size:.82em;margin:0 .06em}
+.fr-n{padding:0 .18em .06em;border-bottom:.07em solid currentColor}
+.fr-d{padding:.06em .18em 0}
+
+/* בחירת ערך ובניית משוואה */
+.tools{margin-top:10px;display:grid;gap:12px}
+.tools h3{margin:0 0 6px;font-size:17px;color:var(--bordo);text-align:center}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;direction:ltr}
+.chip-btn{width:52px;height:52px;border-radius:14px;border:2px solid var(--border);background:#fff;color:var(--blue);font-family:var(--math);font-size:26px;font-weight:700;cursor:grab;touch-action:none}
+.chip-btn:hover:not(:disabled){border-color:var(--blue)}
+.chip-btn.on{background:var(--bordo);border-color:var(--bordo);color:#fff}
+.chip-btn:disabled{opacity:.5;cursor:default}
+.tile{min-width:52px;height:52px;border-radius:12px;border:0;color:#fff;font-family:var(--math);font-size:26px;font-weight:700;cursor:grab;touch-action:none;display:inline-grid;place-items:center;padding:0 8px}
+.tile.num{background:var(--blue)}
+.tile.box{background:var(--bordo);position:relative;width:52px}
+.tile.box::after{content:"";position:absolute;left:0;right:0;top:12px;height:3px;background:rgba(255,255,255,.65)}
+.tile.box i{font-size:28px}
+.tile:hover{filter:brightness(1.15)}
+.pansel{display:flex;justify-content:center;gap:8px;direction:ltr;flex-wrap:wrap;align-items:center}
+.pansel button{min-height:44px;border:1.5px solid var(--border);background:#fff;color:var(--blue);border-radius:14px;font-size:17px;font-weight:600;padding:6px 16px;cursor:pointer;direction:rtl}
+.pansel button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.dragging{cursor:grabbing!important}
+.ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-50%) scale(1.08);box-shadow:0 8px 20px rgba(23,54,94,.25);opacity:.95}
+
+.feedback{min-height:2.4em;margin:12px auto 0;text-align:center;font-size:19px;font-weight:600;max-width:680px}
+.feedback.ok{color:var(--ok-text)} .feedback.bad{color:var(--bordo)} .feedback.info{color:var(--blue)}
+.feedback .sub{display:block;margin-top:4px;font-weight:400;color:var(--blue);font-size:18px}
+.feedback .m{font-size:1.25em}
+
+/* ===== מסכי שלב וסיום ===== */
+.end-icon{display:block;width:96px;height:96px;margin:0 auto 6px}
+.starsrow{display:flex;justify-content:center;gap:6px;margin:10px 0}
+.starsrow img{width:40px;height:40px}
+.starsrow img.off{opacity:.22}
+.summary{display:grid;gap:10px;max-width:440px;margin:16px auto}
+.summary div{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px 16px;background:var(--soft);border:1px solid var(--border);border-radius:14px}
+.summary strong{color:var(--bordo);font-size:21px}
+
+dialog{border:0;border-radius:var(--radius);padding:26px 28px;max-width:min(600px,calc(100% - 28px));color:var(--blue);font-family:var(--ui)}
+dialog::backdrop{background:rgba(23,54,94,.35)}
+dialog h2{text-align:right}
+dialog ul{padding-inline-start:20px}
+dialog li{margin-bottom:6px}
+dialog li img{width:26px;height:26px;vertical-align:middle;margin-inline-end:6px}
+
+@media (max-width:600px){
+  .topbar{gap:8px}
+  .topbar .logo{height:28px}
+  .topbar h1{font-size:17px}
+  .icon-btn{width:42px;height:42px} .icon-btn img{width:34px;height:34px}
+  .stat{font-size:15px;padding:4px 9px} .stat img{width:26px;height:26px}
+  .brand-btn{min-width:200px;height:58px;font-size:19px}
+  .chip-btn,.tile{width:46px;min-width:46px;height:46px;font-size:23px}
+  .tile.box{width:46px} .tile.box::after{top:10px}
+  .map{gap:10px} .lvl{min-height:96px}
+  #scale{max-height:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <img class="logo" src="assets/icons/LOGO Prisming.svg" alt="Prisming – פריזמה">
+  <h1>מאזני המשוואות</h1>
+  <div class="icons">
+    <button class="icon-btn" id="helpBtn" type="button" aria-label="הוראות"><img src="assets/icons/instructions_circle.svg" alt=""></button>
+    <button class="icon-btn" id="muteBtn" type="button" aria-label="השתקת צלילים" aria-pressed="false"><img id="muteImg" src="assets/icons/speaker_circle.svg" alt=""></button>
+    <button class="icon-btn" id="homeBtn" type="button" aria-label="חזרה למסך הפתיחה" hidden><img src="assets/icons/home_circle.svg" alt=""></button>
+  </div>
+</header>
+
+<main>
+<!-- ===== מסך פתיחה ===== -->
+<section class="screen" id="startScreen">
+  <div class="card">
+    <svg class="hero" viewBox="0 0 420 170" aria-hidden="true">
+      <rect x="203" y="40" width="14" height="112" rx="4" fill="#6f7f8f"/>
+      <rect x="150" y="150" width="120" height="12" rx="6" fill="#6f7f8f"/>
+      <rect x="60" y="34" width="300" height="10" rx="5" fill="#6db580"/>
+      <circle cx="210" cy="39" r="10" fill="#6db580"/><circle cx="210" cy="39" r="4" fill="#fff"/>
+      <g transform="translate(75 39)"><line x1="0" y1="0" x2="-55" y2="80" stroke="#6f7f8f" stroke-width="2"/><line x1="0" y1="0" x2="55" y2="80" stroke="#6f7f8f" stroke-width="2"/>
+        <path d="M-62 80H62Q50 96 0 96Q-50 96-62 80Z" fill="#ece8de" stroke="#6f7f8f" stroke-width="2.2"/>
+        <rect x="-46" y="38" width="40" height="40" rx="7" fill="#832058"/><rect x="-46" y="48" width="40" height="3" fill="#fff" opacity=".65"/>
+        <text x="-26" y="70" text-anchor="middle" font-family="Times New Roman" font-size="24" font-weight="700" fill="#fff">?</text>
+        <rect x="4" y="38" width="40" height="40" rx="8" fill="#17365e"/><text x="24" y="66" text-anchor="middle" font-family="Times New Roman" font-size="24" font-weight="700" fill="#fff">3</text></g>
+      <g transform="translate(345 39)"><line x1="0" y1="0" x2="-55" y2="80" stroke="#6f7f8f" stroke-width="2"/><line x1="0" y1="0" x2="55" y2="80" stroke="#6f7f8f" stroke-width="2"/>
+        <path d="M-62 80H62Q50 96 0 96Q-50 96-62 80Z" fill="#ece8de" stroke="#6f7f8f" stroke-width="2.2"/>
+        <rect x="-20" y="38" width="40" height="40" rx="8" fill="#17365e"/><text x="0" y="66" text-anchor="middle" font-family="Times New Roman" font-size="24" font-weight="700" fill="#fff">8</text></g>
+    </svg>
+    <h2>מאזני המשוואות</h2>
+    <p class="lead">בכל קופסה מסתתר מספר. שימו מספרים, בנו משוואות בעצמכם, וגלו מתי המאזניים מתאזנים.</p>
+    <div class="actions">
+      <button class="brand-btn" id="startBtn" type="button"><img src="assets/icons/play_circle.svg" alt=""><span id="startLabel">התחלת המשחק</span></button>
+    </div>
+    <div class="actions">
+      <button class="text-btn" id="mapBtn" type="button"><img src="assets/icons/game_levels_circle.svg" alt="">מפת השלבים</button>
+      <button class="text-btn" id="labBtn" type="button"><img src="assets/icons/settings_circle.svg" alt="">מעבדה חופשית</button>
+      <button class="text-btn" id="startHelpBtn" type="button"><img src="assets/icons/instructions_circle.svg" alt="">איך משחקים?</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== מפת השלבים ===== -->
+<section class="screen" id="mapScreen" hidden>
+  <div class="card">
+    <h2>מפת השלבים</h2>
+    <p class="lead">כל שלב נפתח אחרי שמסיימים את השלב שלפניו. אפשר לחזור לכל שלב שכבר נפתח.</p>
+    <div class="map" id="map"></div>
+    <div class="actions">
+      <button class="text-btn" id="mapLabBtn" type="button"><img src="assets/icons/settings_circle.svg" alt="">מעבדה חופשית</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== פתיחת שלב ===== -->
+<section class="screen" id="introScreen" hidden>
+  <div class="card">
+    <p class="lead" id="introText" style="font-size:21px;margin-top:8px"></p>
+    <div class="note" id="introExample"></div>
+    <div class="actions">
+      <button class="brand-btn" id="introGo" type="button"><span>התחלה</span><img src="assets/icons/nav_forward_circle.svg" alt=""></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== מסך משחק ===== -->
+<section class="screen" id="gameScreen" hidden>
+  <div class="card">
+    <div class="stats" id="stats">
+      <span class="stat"><img src="assets/icons/star_circle.svg" alt="">כוכבים <b id="starVal">0</b></span>
+      <span class="stat"><img src="assets/icons/game_levels_circle.svg" alt="">משימה <b id="qVal"></b></span>
+    </div>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <div class="task" id="task"></div>
+    <div class="req" id="req" hidden></div>
+    <div class="collected" id="collected" hidden></div>
+
+    <div class="scale-wrap">
+      <svg id="scale" viewBox="0 48 760 368" role="img" aria-label="מאזניים">
+        <rect x="372" y="120" width="16" height="250" rx="4" fill="#6f7f8f"/>
+        <rect x="300" y="366" width="160" height="14" rx="7" fill="#6f7f8f"/>
+        <g id="panL" class="pan"></g>
+        <g id="panR" class="pan"></g>
+        <g id="beam"><rect id="beamBar" x="130" y="114" width="500" height="12" rx="6" fill="#17365e"/></g>
+        <circle id="pivot" cx="380" cy="120" r="13" fill="#17365e"/><circle cx="380" cy="120" r="5" fill="#fff"/>
+      </svg>
+    </div>
+
+    <div class="eqline"><span class="m eq" id="eq"></span></div>
+    <div class="note" id="note"></div>
+    <div class="subline" id="subline" aria-live="polite"></div>
+
+    <div class="tools">
+      <div id="valueTools" hidden>
+        <h3 id="valueTitle">איזה מספר בקופסה? גררו מספר אל המאזניים או לחצו עליו</h3>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div id="buildTools" hidden>
+        <h3>גררו אריחים אל הכפות, או בחרו כף ולחצו על אריח. לחיצה על אריח במאזניים מורידה אותו.</h3>
+        <div class="pansel" id="pansel">
+          <button type="button" data-pan="L" aria-pressed="true">לכף השמאלית</button>
+          <button type="button" data-pan="R" aria-pressed="false">לכף הימנית</button>
+        </div>
+        <div class="chips" id="tiles" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+    <div class="actions">
+      <button class="text-btn" id="hintBtn" type="button"><img src="assets/icons/hint_circle.svg" alt="">רמז</button>
+      <button class="text-btn" id="clearBtn" type="button"><img src="assets/icons/restart_circle.svg" alt="">ניקוי המאזניים</button>
+      <button class="brand-btn" id="checkBtn" type="button">בדיקה</button>
+      <button class="brand-btn" id="analyzeBtn" type="button">מה הפתרון?</button>
+      <button class="brand-btn" id="nextBtn" type="button" hidden><span id="nextLabel">למשימה הבאה</span><img src="assets/icons/nav_forward_circle.svg" alt=""></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== סיום שלב ===== -->
+<section class="screen" id="stageEndScreen" hidden>
+  <div class="card">
+    <img class="end-icon" src="assets/icons/star_circle.svg" alt="">
+    <h2>השלב הושלם!</h2>
+    <p class="lead" id="stageEndText"></p>
+    <div class="starsrow" id="stageStars"></div>
+    <div class="actions">
+      <button class="brand-btn" id="nextStageBtn" type="button"><span>לשלב הבא</span><img src="assets/icons/nav_forward_circle.svg" alt=""></button>
+    </div>
+    <div class="actions">
+      <button class="text-btn" id="retryStageBtn" type="button"><img src="assets/icons/restart_circle.svg" alt="">שוב את השלב</button>
+      <button class="text-btn" id="stageMapBtn" type="button"><img src="assets/icons/game_levels_circle.svg" alt="">מפת השלבים</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== סיום המשחק ===== -->
+<section class="screen" id="endScreen" hidden>
+  <div class="card">
+    <img class="end-icon" src="assets/icons/trophy_circle.svg" alt="">
+    <h2>סיימתם את כל השלבים!</h2>
+    <p class="lead">משוואה היא טענה ששני האגפים שווים. הפתרון הוא המספר שהופך אותה לנכונה – בדיוק כמו מאזניים מאוזנים.</p>
+    <div class="summary" id="summary"></div>
+    <div class="actions">
+      <button class="brand-btn" id="againBtn" type="button"><img src="assets/icons/restart_circle.svg" alt="">משחק נוסף</button>
+    </div>
+    <div class="actions">
+      <button class="text-btn" id="endLabBtn" type="button"><img src="assets/icons/settings_circle.svg" alt="">מעבדה חופשית</button>
+      <button class="text-btn" id="endMapBtn" type="button"><img src="assets/icons/game_levels_circle.svg" alt="">מפת השלבים</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<dialog id="helpDlg" aria-labelledby="helpTitle">
+  <h2 id="helpTitle">איך משחקים?</h2>
+  <p>המשוואה מוצגת על מאזניים: האגף השמאלי בכף השמאלית והאגף הימני בכף הימנית. כשהמאזניים מאוזנים – שני האגפים שווים, והמשוואה נכונה.</p>
+  <ul>
+    <li><b>הקופסה</b> (בבורדו) היא הנעלם. בכל הקופסאות במשוואה יש <b>אותו מספר</b>.</li>
+    <li><b>מצאו את המספר:</b> גררו מספר אל המאזניים או לחצו עליו, וראו אם הם מתאזנים.</li>
+    <li><b>בנו משוואה:</b> גררו קופסאות ומספרים אל הכפות. לחיצה על אריח שבכף מורידה אותו. בסוף לוחצים „בדיקה”.</li>
+    <li><img src="assets/icons/star_circle.svg" alt=""><b>כוכבים:</b> כל משימה שנפתרה עם שתי טעויות לכל היותר מזכה בכוכב. אחרי יותר טעויות ממשיכים לנסות – המשימה נספרת, אבל בלי כוכב.</li>
+    <li><img src="assets/icons/hint_circle.svg" alt=""><b>רמז:</b> אפשר לבקש רמז בכל משימה. הרמז לא מוריד כוכב.</li>
+    <li><img src="assets/icons/game_levels_circle.svg" alt=""><b>שלבים:</b> שישה שלבים. כל שלב נפתח אחרי שמסיימים את הקודם.</li>
+    <li><img src="assets/icons/settings_circle.svg" alt=""><b>מעבדה חופשית:</b> בונים כל משוואה שרוצים, בודקים מספרים ומגלים מה הפתרון.</li>
+  </ul>
+  <p>הצלילים מופעלים ומושתקים בכפתור הרמקול. אפשר לשחק גם בלי צליל.</p>
+  <div class="actions"><button class="text-btn" id="helpClose" type="button"><img src="assets/icons/nav_back_circle.svg" alt="">חזרה</button></div>
+</dialog>
+
+<script>
+const ASSETS = {
+  icons: { soundOn: /*asset*/"assets/icons/speaker_circle.svg", soundOff: /*asset*/"assets/icons/mute_circle.svg", star: /*asset*/"assets/icons/star_circle.svg" },
+  sounds: { success: /*asset*/"assets/sounds/success.mp3", error: /*asset*/"assets/sounds/error.mp3", finish: /*asset*/"assets/sounds/completion.mp3" },
+};
+// נכסים מתיקיית prisma שלא שולבו (אין להם מנגנון במשחק): heart, coins, streak_flame, clock, timer bars, menu – החלטה פתוחה.
+
+(() => {
+  const $ = id => document.getElementById(id);
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const MINUS = '\u2212';
+  const B = 'B';                                   // סימון קופסה בתוך רשימת איברים
+
+  /* ---------- צלילים ---------- */
+  let muted = false, lastAt = 0;
+  const audio = Object.fromEntries(Object.entries(ASSETS.sounds).map(([k, v]) => { const a = new Audio(v); a.preload = 'auto'; a.volume = .65; return [k, a]; }));
+  const stopAll = () => Object.values(audio).forEach(a => { a.pause(); a.currentTime = 0; });
+  function play(name) {
+    if (muted) return;
+    const now = performance.now(); if (now - lastAt < 150) return; lastAt = now;
+    stopAll(); audio[name]?.play().catch(() => {});
+  }
+  $('muteBtn').addEventListener('click', () => {
+    muted = !muted;
+    $('muteBtn').setAttribute('aria-pressed', String(muted));
+    $('muteBtn').setAttribute('aria-label', muted ? 'הפעלת צלילים' : 'השתקת צלילים');
+    $('muteImg').src = muted ? ASSETS.icons.soundOff : ASSETS.icons.soundOn;
+    if (muted) stopAll();
+  });
+
+  /* ---------- עזרי מתמטיקה ---------- */
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a; };
+  // אגף = רשימת איברים: B (קופסה) או מספר. a = מספר קופסאות, p = סכום המספרים
+  const coef = side => ({ a: side.filter(t => t === B).length, p: side.filter(t => t !== B).reduce((s, t) => s + t, 0) });
+  const sideVal = (side, v) => { const c = coef(side); return c.a * v + c.p; };
+  // ניתוח המשוואה a·x + p = b·x + q
+  function analyze(L, R) {
+    const l = coef(L), r = coef(R);
+    if (l.a === r.a) return { kind: l.p === r.p ? 'all' : 'none' };
+    const num = r.p - l.p, den = l.a - r.a, g = gcd(num, den) || 1;
+    let n = num / g, d = den / g; if (d < 0) { n = -n; d = -d; }
+    return { kind: 'one', n, d, x: n / d };
+  }
+  const sameEq = (L1, R1, L2, R2) => {
+    const k = s => { const c = s.filter(t => t !== B).sort((a, b) => a - b); return s.filter(t => t === B).length + '|' + c.join(','); };
+    return (k(L1) === k(L2) && k(R1) === k(R2)) || (k(L1) === k(R2) && k(R1) === k(L2));
+  };
+
+  /* ---------- כתיב ---------- */
+  let XMODE = false;                                // שלב ה־x: הקופסה נכתבת כ־x
+  const varHTML = () => XMODE ? '<i>x</i>' : '<span class="bx" role="img" aria-label="קופסה"></span>';
+  const numHTML = n => n < 0 ? MINUS + Math.abs(n) : String(n);
+  function sideHTML(side, compact) {
+    if (!side.length) return '<span class="ph">?</span>';
+    const out = []; let doneBox = false; const a = coef(side).a;
+    for (const t of side) {
+      if (t === B) {
+        if (!compact) { out.push(varHTML()); continue; }
+        if (doneBox) continue; doneBox = true;
+        out.push(a === 1 ? varHTML() : `<span class="cf">${a}${varHTML()}</span>`);
+      } else out.push(String(t));
+    }
+    return out.join('<span>+</span>');
+  }
+  const eqHTML = (L, R, compact = true) => `${sideHTML(L, compact)}<span>=</span>${sideHTML(R, compact)}`;
+  // הצבה: 2 · 4 + 3
+  function subHTML(side, v, compact = true) {
+    const out = []; let doneBox = false; const a = coef(side).a;
+    for (const t of side) {
+      if (t === B) {
+        if (!compact) { out.push(String(v)); continue; }
+        if (doneBox) continue; doneBox = true;
+        out.push(a === 1 ? String(v) : `${a}<span>·</span>${v}`);
+      } else out.push(String(t));
+    }
+    return out.join('<span>+</span>');
+  }
+  const solHTML = s => s.d === 1 ? numHTML(s.n) : `${s.n < 0 ? MINUS : ''}<span class="fr"><span class="fr-n">${Math.abs(s.n)}</span><span class="fr-d">${s.d}</span></span>`;
+
+  /* ---------- מחוללי משימות ---------- */
+  const used = new Set();
+  function fresh(make) {                                       // בלי חזרה על אותה משוואה בהפעלה
+    for (let t = 0; t < 60; t++) { const m = make(); const key = JSON.stringify([m.L, m.R, m.N, m.req]); if (!used.has(key)) { used.add(key); return m; } }
+    return make();
+  }
+  const FIND1 = [
+    () => { const x = rnd(2, 9), a = rnd(1, 9); return { L: [B, a], R: [x + a], x, hint: `איזה מספר ועוד ${a} שווה ${x + a}?` }; },
+    () => { const x = rnd(2, 9), a = rnd(1, 9); return { L: [a, B], R: [x + a], x, hint: `${a} ועוד כמה שווה ${x + a}?` }; },
+    () => { const x = rnd(2, 9), a = rnd(1, 9); return { L: [x + a], R: [B, a], x, hint: `גם כך זו משוואה: ${x + a} שווה לקופסה ועוד ${a}.` }; },
+    () => { const x = rnd(2, 9), a = rnd(1, 6), s = x + a, c = rnd(1, s - 1); return { L: [B, a], R: [c, s - c], x, hint: `בכף הימנית יש ${s} בסך הכול. איזה מספר ועוד ${a} שווה ${s}?` }; },
+    () => { const x = rnd(2, 9), a = rnd(1, 6), s = x + a, c = rnd(1, s - 1); return { L: [c, s - c], R: [a, B], x, hint: `בכף השמאלית יש ${s} בסך הכול. ${a} ועוד כמה שווה ${s}?` }; },
+  ];
+  const FIND2 = [
+    () => { const x = rnd(2, 9); return { L: [B, B], R: [2 * x], x, compact: false, note: true, hint: `שתי קופסאות שוקלות יחד ${2 * x}. כמה שוקלת כל אחת?` }; },
+    () => { const x = rnd(2, 8), a = rnd(1, 6); return { L: [B, B, a], R: [2 * x + a], x, compact: false, note: true, hint: `בלי ה־${a}, שתי הקופסאות שוקלות ${2 * x}.` }; },
+    () => { const x = rnd(2, 8), a = rnd(1, 6); return { L: [B, B, a], R: [2 * x + a], x, compact: true, hint: `שתי קופסאות ועוד ${a} שוקלים ${2 * x + a}. כמה שוקלות שתי הקופסאות בלי ה־${a}?` }; },
+    () => { const x = rnd(2, 5), a = rnd(1, 5); return { L: [B, B, B, a], R: [3 * x + a], x, compact: true, hint: `שלוש קופסאות שוקלות יחד ${3 * x}. כמה שוקלת כל אחת?` }; },
+    () => { const x = rnd(2, 8), a = rnd(1, 6); return { L: [B, B, a], R: [B, x + a], x, compact: true, hint: 'אפשר להוריד קופסה אחת משתי הכפות – המאזניים יישארו מאוזנים. מה נשאר?' }; },
+  ];
+  const FINDX = [
+    () => { const x = rnd(2, 9), a = rnd(1, 9); return { L: [B, a], R: [x + a], x, hint: `איזה מספר ועוד ${a} שווה ${x + a}?` }; },
+    () => { const x = rnd(2, 8), a = rnd(1, 6); return { L: [B, B, a], R: [2 * x + a], x, compact: true, hint: `בלי ה־${a}, שני ה־x שוקלים ${2 * x}.` }; },
+    () => { const x = rnd(2, 8), a = rnd(1, 6); return { L: [B, B, a], R: [B, x + a], x, compact: true, hint: 'אפשר להוריד x אחד משתי הכפות – המאזניים יישארו מאוזנים.' }; },
+  ];
+  const BUILD = [
+    { req: 'any',      text: '', hint: N => `שימו קופסה ומספר בכף אחת. כמה צריך לשים בכף השנייה כשבקופסה ${N}?` },
+    { req: 'twoBoxes', text: 'לפחות שתי קופסאות במשוואה', hint: N => `שתי קופסאות שוקלות יחד ${2 * N}.` },
+    { req: 'numsBoth', text: 'מספרים בשתי הכפות', hint: N => `נסו קופסה ועוד מספר בכף אחת, ושני מספרים בכף השנייה.` },
+    { req: 'boxesBoth', text: 'קופסאות בשתי הכפות', hint: N => `שימו קופסה גם בכף השנייה. מה צריך להוסיף כדי להשוות?` },
+  ];
+  const STAGES = [
+    { kind: 'find', n: 5, intro: 'בכל קופסה מסתתר מספר. מצאו איזה מספר צריך להיות בקופסה כדי שהמאזניים יתאזנו.',
+      example: () => `<span class="m eq">${eqHTML([B, 3], [8])}</span>`, gen: i => fresh(FIND1[i]) },
+    { kind: 'find', n: 5, intro: 'עכשיו יש כמה קופסאות. בכל הקופסאות במשוואה יש אותו מספר.',
+      example: () => `<span class="m eq">${eqHTML([B, B, 3], [11], false)}</span><br>אפשר לכתוב את זה גם בקיצור: <span class="m eq">${eqHTML([B, B, 3], [11], true)}</span>`, gen: i => fresh(FIND2[i]) },
+    { kind: 'build', n: 4, intro: 'הפעם אתם בונים את המשוואה! בנו משוואה שהפתרון שלה הוא המספר שבקופסה.',
+      gen: i => fresh(() => ({ N: rnd(2, 9), ...BUILD[i] })) },
+    { kind: 'collect', n: 1, intro: 'לאותו פתרון יש הרבה משוואות. בנו שלוש משוואות שונות שלכולן אותו פתרון.',
+      gen: () => fresh(() => ({ N: rnd(3, 9), hint: () => 'אם מוסיפים אותו מספר לשתי הכפות, המאזניים נשארים מאוזנים.' })) },
+    { kind: 'special', n: 2, intro: 'אתגר: האם יש משוואות שאין להן פתרון? ומשוואות שכל מספר פותר אותן? נסו לבנות אותן.',
+      gen: i => (i === 0
+        ? { goal: 'none', task: 'בנו משוואה שאין לה פתרון: שום מספר בקופסה לא יאזן את המאזניים.', hint: () => 'נסו לשים אותו מספר קופסאות בשתי הכפות.' }
+        : { goal: 'all', task: 'בנו משוואה שכל מספר בקופסה פותר אותה.', hint: () => 'מה יקרה אם שתי הכפות יהיו זהות לגמרי?' }) },
+    { kind: 'find', n: 3, x: true, intro: 'במתמטיקה כותבים את הנעלם באות, בדרך כלל x. הקופסה מתחלפת ב־x – וזו אותה משוואה בדיוק.',
+      example: () => { XMODE = false; const a = eqHTML([B, B, 3], [11]); XMODE = true; const b = eqHTML([B, B, 3], [11]); XMODE = false; return `<span class="m eq">${a}</span><br><span class="m eq">${b}</span>`; },
+      gen: i => fresh(FINDX[i]) },
+  ];
+
+  /* ---------- התקדמות (נשמרת בדפדפן) ---------- */
+  const KEY = 'prismind-equation-balance-v1';
+  let PROG = { done: STAGES.map(() => false), stars: STAGES.map(() => 0) };
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done?.length === STAGES.length) PROG = s; } catch (e) {}
+  const saveProg = () => { try { localStorage.setItem(KEY, JSON.stringify(PROG)); } catch (e) {} };
+  const unlocked = i => i === 0 || PROG.done[i - 1];
+  const firstOpen = () => { const i = PROG.done.findIndex(d => !d); return i < 0 ? 0 : i; };
+
+  /* ---------- מסכים ---------- */
+  const SCREENS = ['startScreen', 'mapScreen', 'introScreen', 'gameScreen', 'stageEndScreen', 'endScreen'];
+  function show(id) {
+    SCREENS.forEach(s => $(s).hidden = s !== id);
+    $('homeBtn').hidden = id === 'startScreen';
+    if (id !== 'gameScreen') stopAll();
+    window.scrollTo({ top: 0 });
+  }
+  function goStart() {
+    S = null;
+    $('startLabel').textContent = PROG.done.some(Boolean) && !PROG.done.every(Boolean) ? 'המשך המשחק' : 'התחלת המשחק';
+    show('startScreen');
+  }
+
+  function renderMap() {
+    const next = firstOpen();
+    $('map').innerHTML = STAGES.map((st, i) => {
+      const open = unlocked(i), cls = ['lvl', PROG.done[i] ? 'done' : '', open && !PROG.done[i] && i === next ? 'next' : ''].join(' ');
+      return `<button class="${cls}" type="button" data-i="${i}" ${open ? '' : 'disabled'} aria-label="שלב ${i + 1}${open ? '' : ' – נעול'}${PROG.done[i] ? ` – הושלם, ${PROG.stars[i]} כוכבים מתוך ${st.n}` : ''}">
+        <span class="num">${i + 1}</span>
+        <span class="st">${PROG.done[i] ? `<img src="${ASSETS.icons.star}" alt="">${PROG.stars[i]}/${st.n}` : open ? 'פתוח' : 'נעול'}</span></button>`;
+    }).join('');
+    show('mapScreen');
+  }
+  $('map').addEventListener('click', e => { const b = e.target.closest('.lvl'); if (b && !b.disabled) openStage(+b.dataset.i); });
+
+  /* ---------- מצב משחק ---------- */
+  let S = null;
+  function openStage(i) {
+    const st = STAGES[i];
+    S = { stage: i, mi: 0, stars: 0, results: [] };
+    XMODE = !!st.x;
+    $('introText').textContent = st.intro;
+    $('introExample').innerHTML = st.example ? st.example() : '';
+    XMODE = !!st.x;
+    show('introScreen');
+    $('introGo').focus({ preventScroll: true });
+  }
+  $('introGo').addEventListener('click', () => { show('gameScreen'); startMission(0); });
+
+  function startLab() {
+    XMODE = false;
+    S = { stage: -1, mi: 0, stars: 0, results: [] };
+    show('gameScreen');
+    S.m = { kind: 'lab' };
+    resetMission();
+    render();
+  }
+
+  function startMission(mi) {
+    const st = STAGES[S.stage];
+    S.mi = mi;
+    S.m = { kind: st.kind, ...st.gen(mi) };
+    resetMission();
+    render();
+  }
+  function resetMission() {
+    const m = S.m;
+    S.L = m.L ? [...m.L] : []; S.R = m.R ? [...m.R] : [];
+    S.val = null; S.mistakes = 0; S.solved = false; S.collected = []; S.sel = 'L';
+    S.locked = false;
+  }
+  const isFind = () => S.m.kind === 'find';
+  const canEdit = () => !S.solved && ['build', 'collect', 'special', 'lab'].includes(S.m.kind);
+  // ערך הקופסה שמוצג במאזניים
+  function boxVal() {
+    const k = S.m.kind;
+    if (k === 'build' || k === 'collect') return S.m.N;
+    return S.val;
+  }
+
+  /* ---------- ציור המאזניים ---------- */
+  const PIV = { x: 380, y: 120 }, ARM = 250, HANG = 172;
+  let ang = 0, tgt = 0, raf = 0;
+  const panG = { L: $('panL'), R: $('panR') };
+  function svgEl(tag, attrs, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; }
+
+  function drawPan(side) {
+    const g = panG[side]; g.innerHTML = '';
+    const items = S[side], v = boxVal();
+    svgEl('line', { x1: 0, y1: 0, x2: -112, y2: HANG, stroke: '#6f7f8f', 'stroke-width': 2 }, g);
+    svgEl('line', { x1: 0, y1: 0, x2: 112, y2: HANG, stroke: '#6f7f8f', 'stroke-width': 2 }, g);
+    svgEl('circle', { cx: 0, cy: 0, r: 5, fill: '#6f7f8f' }, g);
+    const hit = svgEl('rect', { class: 'hit', x: -132, y: 30, width: 264, height: HANG + 40, 'data-pan': side }, g);
+    hit.addEventListener('click', () => { if (canEdit()) selectPan(side); });
+    svgEl('path', { class: 'tray', d: `M-124 ${HANG}H124Q104 ${HANG + 22} 0 ${HANG + 22}Q-104 ${HANG + 22}-124 ${HANG}Z`, fill: '#ece8de', stroke: '#6f7f8f', 'stroke-width': 2.2 }, g);
+    // פריסה: עד 4 בשורה, שורות מלמטה למעלה
+    const SZ = 58, GAP = 6, PER = 3;
+    items.forEach((t, idx) => {
+      const row = Math.floor(idx / PER), inRow = Math.min(PER, items.length - row * PER), col = idx % PER;
+      const x = (col - (inRow - 1) / 2) * (SZ + GAP) - SZ / 2, y = HANG - 4 - SZ - row * (SZ + 5);
+      const ig = svgEl('g', { class: 'item' + (canEdit() ? ' rm' : ''), transform: `translate(${x} ${y})` }, g);
+      const isBox = t === B;
+      svgEl('rect', { class: 'body', width: SZ, height: SZ, rx: isBox ? 7 : 10, fill: isBox ? '#832058' : '#17365e' }, ig);
+      if (isBox) svgEl('rect', { x: 0, y: 13, width: SZ, height: 3.5, fill: '#fff', opacity: .65 }, ig);
+      const label = isBox ? (v == null ? (XMODE ? 'x' : '?') : String(v)) : String(t);
+      const tx = svgEl('text', { x: SZ / 2, y: isBox ? 46 : 40, 'text-anchor': 'middle', 'font-family': 'Times New Roman, Georgia, serif', 'font-size': 31, 'font-weight': 700, fill: '#fff', 'font-style': isBox && v == null && XMODE ? 'italic' : 'normal' }, ig);
+      tx.textContent = label;
+      if (canEdit()) {
+        ig.setAttribute('tabindex', '0'); ig.setAttribute('role', 'button');
+        ig.setAttribute('aria-label', `הורדת ${isBox ? (XMODE ? 'x' : 'קופסה') : t} מהכף ה${side === 'L' ? 'שמאלית' : 'ימנית'}`);
+        const rm = () => { if (!canEdit()) return; S[side].splice(idx, 1); clearFeedback(); render(); };
+        ig.addEventListener('click', e => { e.stopPropagation(); rm(); });
+        ig.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); rm(); } });
+      }
+    });
+    // ערך הכף
+    const known = v != null || !items.includes(B);
+    const val = items.length ? (known ? String(sideVal(items, v ?? 0)) : '?') : '';
+    const vt = svgEl('text', { x: 0, y: HANG + 54, 'text-anchor': 'middle', 'font-family': 'Times New Roman, Georgia, serif', 'font-size': 30, 'font-weight': 700, fill: '#17365e' }, g);
+    vt.textContent = val;
+    g.classList.toggle('sel', canEdit() && S.sel === side);
+  }
+  function placeScale() {
+    const th = ang * Math.PI / 180;
+    $('beam').setAttribute('transform', `rotate(${ang} ${PIV.x} ${PIV.y})`);
+    const lx = PIV.x - ARM * Math.cos(th), ly = PIV.y - ARM * Math.sin(th);
+    const rx = PIV.x + ARM * Math.cos(th), ry = PIV.y + ARM * Math.sin(th);
+    panG.L.setAttribute('transform', `translate(${lx} ${ly})`);
+    panG.R.setAttribute('transform', `translate(${rx} ${ry})`);
+  }
+  function animate() {
+    cancelAnimationFrame(raf);
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const step = () => {
+      ang += (tgt - ang) * (reduce ? 1 : .14);
+      if (Math.abs(tgt - ang) < .02) ang = tgt;
+      placeScale();
+      if (ang !== tgt) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  function updateTilt() {
+    const v = boxVal();
+    const hasBox = S.L.includes(B) || S.R.includes(B);
+    let balanced = false;
+    if ((hasBox && v == null) || (!S.L.length && !S.R.length)) tgt = 0;
+    else {
+      const d = sideVal(S.R, v ?? 0) - sideVal(S.L, v ?? 0);
+      balanced = d === 0 && S.L.length > 0 && S.R.length > 0;
+      tgt = d === 0 ? 0 : Math.sign(d) * Math.min(13, 4 + Math.abs(d) * 1.2);
+    }
+    const col = balanced ? '#6db580' : '#17365e';
+    $('beamBar').setAttribute('fill', col); $('pivot').setAttribute('fill', col);
+    animate();
+    return balanced;
+  }
+
+  /* ---------- ציור כללי ---------- */
+  function render() {
+    const m = S.m, st = STAGES[S.stage], lab = m.kind === 'lab';
+    // סטטיסטיקה
+    $('stats').hidden = lab; $('progress').hidden = lab;
+    if (!lab) {
+      $('starVal').textContent = S.stars;
+      $('qVal').textContent = `${S.mi + 1} מתוך ${st.n}`;
+      $('progress').innerHTML = Array.from({ length: st.n }, (_, k) => `<span class="${k < S.mi ? (S.results[k] ? 'done' : 'miss') : k === S.mi ? 'now' : ''}"></span>`).join('');
+    }
+    // משימה
+    const box = `<span class="m">${varHTML()}</span>`;
+    const taskTxt = {
+      find: XMODE ? 'איזה מספר הוא x? מצאו אותו כך שהמאזניים יתאזנו.' : 'איזה מספר בקופסה? מצאו אותו כך שהמאזניים יתאזנו.',
+      build: `בנו משוואה שהפתרון שלה הוא <span class="m">${varHTML()}<span>=</span>${m.N}</span>`,
+      collect: `בנו 3 משוואות שונות שהפתרון של כל אחת מהן הוא <span class="m">${varHTML()}<span>=</span>${m.N}</span>`,
+      special: m.task,
+      lab: 'מעבדה חופשית: בנו כל משוואה שתרצו, נסו מספרים בקופסה וגלו מה הפתרון.',
+    }[m.kind];
+    $('task').innerHTML = taskTxt;
+    $('req').hidden = !(m.kind === 'build' && m.text);
+    if (m.kind === 'build') $('req').textContent = 'תנאי: ' + m.text;
+    $('collected').hidden = m.kind !== 'collect';
+    if (m.kind === 'collect') $('collected').innerHTML = [0, 1, 2].map(k => S.collected[k]
+      ? `<span class="chip m">${eqHTML(S.collected[k].L, S.collected[k].R)}</span>`
+      : `<span class="slot">משוואה ${k + 1}</span>`).join('');
+
+    drawPan('L'); drawPan('R'); updateTilt(); placeScale();
+
+    // המשוואה
+    const compact = m.compact !== false;
+    $('eq').innerHTML = eqHTML(S.L, S.R, compact);
+    $('note').innerHTML = (isFind() && m.note)
+      ? `אפשר לכתוב את אותה משוואה בקיצור: <span class="m">${eqHTML(S.L, S.R, true)}</span>` : '';
+    renderSubline();
+
+    // כלים
+    const showVal = ['find', 'special', 'lab'].includes(m.kind);
+    $('valueTools').hidden = !showVal;
+    $('valueTitle').textContent = m.kind === 'find'
+      ? (XMODE ? 'איזה מספר הוא x? גררו מספר אל המאזניים או לחצו עליו' : 'איזה מספר בקופסה? גררו מספר אל המאזניים או לחצו עליו')
+      : 'נסו מספר בקופסה – לחצו על מספר או גררו אותו אל המאזניים';
+    $('buildTools').hidden = !['build', 'collect', 'special', 'lab'].includes(m.kind) || S.solved;
+    renderChips(); renderTiles(); renderPanSel();
+
+    // כפתורים
+    const editKind = ['build', 'collect', 'special', 'lab'].includes(m.kind);
+    $('hintBtn').hidden = lab || S.solved;
+    $('clearBtn').hidden = !editKind || S.solved;
+    $('checkBtn').hidden = !['build', 'collect', 'special'].includes(m.kind) || S.solved;
+    $('analyzeBtn').hidden = !lab;
+    $('nextBtn').hidden = !S.solved;
+  }
+  function renderSubline() {
+    const v = boxVal(), hasBox = S.L.includes(B) || S.R.includes(B);
+    if (!S.L.length || !S.R.length || (hasBox && v == null)) { $('subline').innerHTML = ''; return; }
+    const lv = sideVal(S.L, v ?? 0), rv = sideVal(S.R, v ?? 0);
+    const rel = lv === rv ? '=' : lv < rv ? '&lt;' : '&gt;';
+    const compact = S.m.compact !== false;
+    const sub = hasBox ? `<span class="m">${subHTML(S.L, v, compact)}<span>${rel}</span>${subHTML(S.R, v, compact)}</span>` : '';
+    $('subline').innerHTML = hasBox ? sub : `<span class="m">${lv}<span>${rel}</span>${rv}</span>`;
+  }
+  function renderChips() {
+    const max = 12;
+    $('chips').innerHTML = Array.from({ length: max }, (_, k) => k + 1).map(n =>
+      `<button class="chip-btn${S.val === n ? ' on' : ''}" type="button" data-v="${n}" ${S.solved ? 'disabled' : ''} aria-label="${XMODE ? 'x' : 'בקופסה'} ${n}">${n}</button>`).join('');
+  }
+  function renderTiles() {
+    const nums = Array.from({ length: 10 }, (_, k) => k + 1);
+    $('tiles').innerHTML = `<button class="tile box" type="button" data-t="B" aria-label="קופסה" ${canEdit() ? '' : 'disabled'}>${XMODE ? '<i>x</i>' : ''}</button>` +
+      nums.map(n => `<button class="tile num" type="button" data-t="${n}" aria-label="המספר ${n}" ${canEdit() ? '' : 'disabled'}>${n}</button>`).join('');
+  }
+  function renderPanSel() {
+    $('pansel').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pan === S.sel)));
+  }
+  function selectPan(p) { S.sel = p; renderPanSel(); panG.L.classList.toggle('sel', p === 'L'); panG.R.classList.toggle('sel', p === 'R'); }
+  $('pansel').addEventListener('click', e => { const b = e.target.closest('button'); if (b) selectPan(b.dataset.pan); });
+
+  /* ---------- משוב ---------- */
+  function feedback(cls, html) { $('feedback').className = 'feedback ' + cls; $('feedback').innerHTML = html; }
+  function clearFeedback() { feedback('', ''); }
+
+  /* ---------- פעולות ---------- */
+  const MAXITEMS = 6, MAXBOX = 4;
+  function addTile(t, side) {
+    if (!canEdit()) return;
+    const arr = S[side];
+    if (arr.length >= MAXITEMS) return feedback('info', 'הכף מלאה – אפשר לשים עד 6 אריחים בכל כף.');
+    if (t === B && arr.filter(x => x === B).length >= MAXBOX) return feedback('info', 'אפשר לשים עד 4 קופסאות בכל כף.');
+    arr.push(t); S.sel = side; clearFeedback(); render();
+  }
+  function setValue(v) {
+    if (S.solved) return;
+    S.val = v;
+    render();
+    if (S.m.kind !== 'find') return;
+    const bal = sideVal(S.L, v) === sideVal(S.R, v);
+    if (bal) return success();
+    S.mistakes++; play('error');
+    const lv = sideVal(S.L, v), rv = sideVal(S.R, v);
+    const heavy = lv > rv ? 'השמאלית' : 'הימנית';
+    const l = coef(S.L), r = coef(S.R), f = lv - rv, smaller = Math.sign(f) * Math.sign(l.a - r.a) > 0;
+    const sub = S.mistakes >= 2
+      ? `נסו מספר ${smaller ? 'קטן' : 'גדול'} יותר.`
+      : `האם המספר ${XMODE ? 'x' : 'בקופסה'} צריך להיות גדול יותר או קטן יותר?`;
+    feedback('bad', `עדיין לא – הכף ${heavy} כבדה יותר.<span class="sub">${sub}</span>`);
+  }
+  function success(extra = '') {
+    S.solved = true;
+    const star = S.mistakes <= 2;
+    if (S.m.kind !== 'lab') { S.results[S.mi] = star; if (star) S.stars++; }
+    play('success');
+    render();
+    const v = boxVal(), m = S.m;
+    let html = 'נכון!';
+    if (m.kind === 'find') {
+      const compact = m.compact !== false;
+      html = `נכון! <span class="m">${varHTML()}<span>=</span>${v}</span><span class="sub">כי <span class="m">${subHTML(S.L, v, compact)}<span>=</span>${subHTML(S.R, v, compact)}</span> – שני האגפים שווים ל־${sideVal(S.L, v)}.</span>`;
+    } else html = 'נכון! ' + extra;
+    if (!star) html += '<span class="sub">המשימה הושלמה – הפעם בלי כוכב.</span>';
+    feedback('ok', html);
+    const last = S.mi === STAGES[S.stage].n - 1;
+    $('nextLabel').textContent = last ? 'לסיום השלב' : 'למשימה הבאה';
+    $('nextBtn').focus({ preventScroll: true });
+  }
+  function mistake(html) { S.mistakes++; play('error'); feedback('bad', html); }
+
+  function check() {
+    const m = S.m, L = S.L, R = S.R;
+    const l = coef(L), r = coef(R), tiles = L.length + R.length;
+    if (!L.length || !R.length) return feedback('info', 'בכל כף צריך להיות לפחות אריח אחד – כל אגף של משוואה צריך ביטוי.');
+    if (l.a + r.a === 0) return feedback('info', `במשוואה צריך נעלם. הוסיפו לפחות ${XMODE ? 'x אחד' : 'קופסה אחת'}.`);
+    const res = analyze(L, R);
+    if (m.kind === 'special') {
+      if (res.kind === m.goal) {
+        return success(m.goal === 'none'
+          ? `<span class="sub">באותו מספר קופסאות בשתי הכפות, ההפרש בין הכפות נשאר <span class="m">${Math.abs(l.p - r.p)}</span> – לא משנה מה בקופסה. לכן אין פתרון.</span>`
+          : `<span class="sub">שתי הכפות שוקלות תמיד אותו דבר, לכן כל מספר הוא פתרון.</span>`);
+      }
+      if (res.kind === 'one') return mistake(`למשוואה הזאת יש פתרון${res.d === 1 && res.n > 0 ? `: <span class="m">${varHTML()}<span>=</span>${res.n}</span>` : ''}.<span class="sub">נסו מספרים בקופסה ובדקו מה קורה.</span>`);
+      return mistake(m.goal === 'none' ? 'כאן כל מספר מאזן את המאזניים – זה ההפך ממה שביקשנו!' : 'כאן שום מספר לא מאזן את המאזניים – אין פתרון. נסו שוב!');
+    }
+    // build / collect
+    if (tiles < 3) return feedback('info', `המשוואה קצרה מדי. בנו משוואה עם לפחות 3 אריחים, ולא רק <span class="m">${varHTML()}<span>=</span>${m.N}</span>.`);
+    if (m.kind === 'build') {
+      const fails = { twoBoxes: l.a + r.a < 2, numsBoth: l.p === 0 || r.p === 0, boxesBoth: l.a === 0 || r.a === 0 }[m.req];
+      if (fails) return feedback('info', `שימו לב לתנאי: ${m.text}.`);
+    }
+    if (res.kind === 'all') return mistake(`המאזניים מאוזנים – אבל הם יהיו מאוזנים גם עם כל מספר אחר בקופסה! לכן ${m.N} אינו הפתרון היחיד.<span class="sub">נסו לשנות את מספר הקופסאות באחת הכפות.</span>`);
+    if (res.kind === 'none') return mistake('לא משנה איזה מספר יהיה בקופסה – המאזניים לעולם לא יתאזנו. למשוואה הזאת אין פתרון.');
+    if (res.x !== m.N) {
+      const lv = sideVal(L, m.N), rv = sideVal(R, m.N);
+      return mistake(`כשבקופסה ${m.N}, הכף ה${lv > rv ? 'שמאלית' : 'ימנית'} כבדה יותר (<span class="m">${lv}<span>${lv > rv ? '&gt;' : '&lt;'}</span>${rv}</span>). שנו את אחת הכפות.`);
+    }
+    if (m.kind === 'build') return success(`<span class="sub">כשבקופסה ${m.N}, שתי הכפות שוקלות ${sideVal(L, m.N)}, ורק המספר ${m.N} מאזן אותן.</span>`);
+    // collect
+    if (S.collected.some(e => sameEq(e.L, e.R, L, R))) return feedback('info', 'את המשוואה הזאת כבר בניתם. בנו משוואה אחרת.');
+    S.collected.push({ L: [...L], R: [...R] });
+    if (S.collected.length >= 3) { return success('<span class="sub">שלוש משוואות שונות – ולכולן אותו פתרון. משוואות כאלה נקראות משוואות שקולות.</span>'); }
+    play('success');
+    S.L = []; S.R = []; render();
+    feedback('ok', `נכון! נשארו עוד ${3 - S.collected.length === 1 ? 'משוואה אחת' : 'שתי משוואות'}.`);
+  }
+  function analyzeLab() {
+    const L = S.L, R = S.R;
+    if (!L.length || !R.length) return feedback('info', 'שימו אריחים בשתי הכפות.');
+    const l = coef(L), r = coef(R);
+    if (l.a + r.a === 0) {
+      const ok = l.p === r.p;
+      return feedback('info', `אין כאן נעלם – זו טענה על מספרים, והיא ${ok ? 'נכונה' : 'לא נכונה'}: <span class="m">${l.p}<span>${ok ? '=' : '≠'}</span>${r.p}</span>.`);
+    }
+    const res = analyze(L, R);
+    if (res.kind === 'all') return feedback('ok', 'כל מספר הוא פתרון של המשוואה הזאת: שתי הכפות שוקלות תמיד אותו דבר.');
+    if (res.kind === 'none') return feedback('info', 'למשוואה הזאת אין פתרון: שום מספר בקופסה לא יאזן את המאזניים.');
+    const nat = res.d === 1 && res.n > 0;
+    feedback('ok', `הפתרון: <span class="m">${varHTML()}<span>=</span>${solHTML(res)}</span>` +
+      (nat ? (res.n <= 12 ? '<span class="sub">בדקו: לחצו על המספר הזה וראו את המאזניים מתאזנים.</span>' : '')
+           : '<span class="sub">הפתרון אינו מספר טבעי, ולכן אי אפשר לבדוק אותו עם המספרים 1–12 שכאן.</span>'));
+  }
+
+  $('checkBtn').addEventListener('click', check);
+  $('analyzeBtn').addEventListener('click', analyzeLab);
+  $('clearBtn').addEventListener('click', () => { if (!canEdit()) return; S.L = []; S.R = []; clearFeedback(); render(); });
+  $('hintBtn').addEventListener('click', () => {
+    const m = S.m;
+    let h = typeof m.hint === 'function' ? m.hint(m.N) : m.hint;
+    if (m.kind === 'find') h = (S.L.filter(t => t === B).length + S.R.filter(t => t === B).length > 1 ? (XMODE ? 'בכל המקומות x הוא אותו מספר. ' : 'בכל הקופסאות יש אותו מספר. ') : '') + h;
+    feedback('info', h);
+  });
+  $('nextBtn').addEventListener('click', () => {
+    if (!S || !S.solved) return;
+    if (S.m.kind === 'lab') return;
+    const st = STAGES[S.stage];
+    if (S.mi < st.n - 1) return startMission(S.mi + 1);
+    finishStage();
+  });
+
+  function finishStage() {
+    const i = S.stage, st = STAGES[i];
+    PROG.done[i] = true; PROG.stars[i] = Math.max(PROG.stars[i], S.stars); saveProg();
+    if (PROG.done.every(Boolean) && i === STAGES.length - 1) return finishGame();
+    $('stageEndText').textContent = `קיבלתם ${S.stars} כוכבים מתוך ${st.n}.`;
+    $('stageStars').innerHTML = Array.from({ length: st.n }, (_, k) => `<img src="${ASSETS.icons.star}" alt="" class="${k < S.stars ? '' : 'off'}">`).join('');
+    const nxt = i + 1 < STAGES.length ? i + 1 : firstOpen();
+    $('nextStageBtn').hidden = PROG.done.every(Boolean) && i + 1 >= STAGES.length;
+    $('nextStageBtn').dataset.i = nxt;
+    show('stageEndScreen');
+    $('nextStageBtn').focus({ preventScroll: true });
+  }
+  function finishGame() {
+    const total = STAGES.reduce((s, st) => s + st.n, 0), got = PROG.stars.reduce((s, n) => s + n, 0);
+    $('summary').innerHTML = `<div><span>כוכבים בכל השלבים</span><strong class="m">${got} / ${total}</strong></div>` +
+      STAGES.map((st, i) => `<div><span>שלב ${i + 1}</span><strong class="m">${PROG.stars[i]} / ${st.n}</strong></div>`).join('');
+    show('endScreen'); play('finish');
+  }
+
+  $('nextStageBtn').addEventListener('click', () => openStage(+$('nextStageBtn').dataset.i));
+  $('retryStageBtn').addEventListener('click', () => openStage(S.stage));
+  $('stageMapBtn').addEventListener('click', renderMap);
+  $('againBtn').addEventListener('click', () => { PROG = { done: STAGES.map(() => false), stars: STAGES.map(() => 0) }; saveProg(); used.clear(); openStage(0); });
+  $('endLabBtn').addEventListener('click', startLab);
+  $('endMapBtn').addEventListener('click', renderMap);
+  $('startBtn').addEventListener('click', () => openStage(PROG.done.every(Boolean) ? 0 : firstOpen()));
+  $('mapBtn').addEventListener('click', renderMap);
+  $('labBtn').addEventListener('click', startLab);
+  $('mapLabBtn').addEventListener('click', startLab);
+  $('homeBtn').addEventListener('click', goStart);
+  const dlg = $('helpDlg');
+  [$('helpBtn'), $('startHelpBtn')].forEach(b => b.addEventListener('click', () => dlg.showModal()));
+  $('helpClose').addEventListener('click', () => dlg.close());
+
+  /* ---------- גרירה (Pointer Events) ולחיצה ---------- */
+  let drag = null, suppressClick = false;
+  function panAt(x, y) {
+    for (const side of ['L', 'R']) {
+      const r = panG[side].querySelector('.hit').getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return side;
+    }
+    return null;
+  }
+  function overScale(x, y) { const r = $('scale').getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+  function onDown(e) {
+    const btn = e.target.closest('.chip-btn,.tile'); if (!btn || btn.disabled) return;
+    drag = { btn, x: e.clientX, y: e.clientY, id: e.pointerId, ghost: null };
+    btn.setPointerCapture(e.pointerId);
+  }
+  function onMove(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (!drag.ghost) {
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return;
+      drag.ghost = drag.btn.cloneNode(true); drag.ghost.classList.add('ghost'); document.body.appendChild(drag.ghost);
+      document.body.classList.add('dragging');
+    }
+    drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
+    const p = drag.btn.classList.contains('tile') ? panAt(e.clientX, e.clientY) : null;
+    panG.L.classList.toggle('drop', p === 'L'); panG.R.classList.toggle('drop', p === 'R');
+  }
+  function onUp(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag; drag = null;
+    panG.L.classList.remove('drop'); panG.R.classList.remove('drop');
+    document.body.classList.remove('dragging');
+    if (!d.ghost) return;                                // לחיצה רגילה – תטופל ב־click
+    d.ghost.remove(); suppressClick = true; setTimeout(() => suppressClick = false, 0);
+    if (d.btn.classList.contains('tile')) {
+      const side = panAt(e.clientX, e.clientY);
+      if (side) addTile(d.btn.dataset.t === 'B' ? B : +d.btn.dataset.t, side);
+    } else if (overScale(e.clientX, e.clientY)) setValue(+d.btn.dataset.v);
+  }
+  function onCancel() { if (drag?.ghost) drag.ghost.remove(); drag = null; document.body.classList.remove('dragging'); panG.L.classList.remove('drop'); panG.R.classList.remove('drop'); }
+  ['chips', 'tiles'].forEach(id => {
+    const el = $(id);
+    el.addEventListener('pointerdown', onDown);
+    el.addEventListener('pointermove', onMove);
+    el.addEventListener('pointerup', onUp);
+    el.addEventListener('pointercancel', onCancel);
+  });
+  $('chips').addEventListener('click', e => { if (suppressClick) return; const b = e.target.closest('.chip-btn'); if (b && !b.disabled) setValue(+b.dataset.v); });
+  $('tiles').addEventListener('click', e => { if (suppressClick) return; const b = e.target.closest('.tile'); if (b && !b.disabled) addTile(b.dataset.t === 'B' ? B : +b.dataset.t, S.sel); });
+
+  // חשיפה לבדיקות אוטומטיות בלבד
+  window.__eqbal = { analyze, coef, sideVal, STAGES, B, getS: () => S, PROG: () => PROG };
+  goStart();
+})();
+</script>
+</body>
+</html>
